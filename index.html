@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetNutri - Otimizador de Dieta </title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Nosso Arquivo de Estilo Separado -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- TELA DE AUTENTICAÇÃO -->
+<div id="secaoAuth" class="container auth-container">
+    <div class="card shadow p-4">
+        <div class="text-center mb-4">
+            <i class="bi bi-paw-fill text-success fs-1"></i>
+            <h3 class="fw-bold mt-2" id="authTitulo">Entrar no PetNutri</h3>
+            <p class="text-muted small">Gerencie a nutrição dos seus pets com Pesquisa Operacional</p>
+        </div>
+        <div id="containerAlertasAuth"></div>
+        <form id="formAuth" onsubmit="processarAuth(event)">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">E-mail</label>
+                <input type="email" id="authEmail" class="form-control" placeholder="seu@email.com" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Senha</label>
+                <input type="password" id="authSenha" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" id="btnAuth" class="btn btn-success w-100 py-2 fw-semibold mb-3">Entrar</button>
+            <div class="text-center">
+                <a href="#" class="small text-decoration-none" id="btnAlternarAuth" onclick="alternarModoAuth()">Não tem conta? Cadastre-se</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- NAV BAR DA APLICAÇÃO PRINCIPAL -->
+<nav id="navbarApp" class="navbar navbar-expand-lg navbar-light shadow-sm mb-4 d-none">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <i class="bi bi-paw-fill text-success me-2 fs-3"></i> PetNutri Web
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-muted small d-none d-sm-inline" id="lblUsuarioLogado">usuario@email.com</span>
+            <button class="btn btn-sm btn-outline-danger" onclick="fazerLogout()"><i class="bi bi-box-arrow-right"></i> Sair</button>
+        </div>
+    </div>
+</nav>
+
+<!-- BODY -->
+<div id="corpoApp" class="container d-none">
+    <div class="row g-4">
+        <!-- COLUNA DA ESQUERDA -->
+        <div class="col-lg-5">
+            <!-- Meus Cães -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-gear-heading text-secondary me-2"></i>Configurações do Tutor</span>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold small text-secondary text-uppercase">Meus Cães</span>
+                        <button class="btn btn-sm btn-outline-primary py-0" onclick="abrirModalCao()"><i class="bi bi-plus"></i> Cão</button>
+                    </div>
+                    <div id="listaCaes" class="d-flex flex-wrap gap-2 mb-3"></div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2 pt-2 border-top">
+                        <span class="fw-semibold small text-secondary text-uppercase">Ração Utilizada</span>
+                        <button class="btn btn-sm btn-outline-primary py-0" onclick="abrirModalRacao()"><i class="bi bi-plus"></i> Ração</button>
+                    </div>
+                    <div class="mb-3">
+                        <select id="selectRacaoAtiva" class="form-select form-select-sm fw-semibold text-dark" onchange="alterarRacaoAtiva()">
+                        </select>
+                    </div>
+
+                    <div id="dadosPetAtual" class="p-3 bg-light rounded border position-relative">
+
+                        <div class="position-absolute top-0 end-0 mt-2 me-2 d-flex gap-1">
+                            <button class="btn btn-xs btn-outline-secondary py-0 px-2" onclick="abrirEdicaoPet()" title="Editar dados do pet" style="font-size: 0.75rem;">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn btn-xs btn-outline-danger py-0 px-2" onclick="removerPetAtivo()" title="Excluir este pet" style="font-size: 0.75rem;">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between mt-2">
+
+                            <div>
+                                <div class="mb-1"><strong>Nome:</strong> <span id="lblNome">--</span></div>
+                                <div class="mb-1"><strong>Peso:</strong> <span id="lblPeso">--</span> kg</div>
+                                <div><strong>Fator:</strong> <span id="lblFator">--</span></div>
+                            </div>
+
+                            <div class="me-2">
+                                <img id="lblFoto" src="https://placehold.co/100x100?text=Pet"
+                                     class="rounded-circle border shadow-sm bg-white"
+                                     style="width: 70px; height: 70px; object-fit: cover;"
+                                     alt="Foto do pet">
+                            </div>
+
+                        </div>
+
+                        <div class="pt-2 mt-2 border-top">
+                            <span class="text-muted small">Meta Diária (NEM):</span>
+                            <span class="fs-5 fw-bold text-dark ms-1" id="metaCalorias">0</span> <span class="text-muted small">kcal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalNovaRacao" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                        <div class="modal-header bg-dark text-white py-3" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                            <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Cadastrar Ração</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <form id="formNovaRacao" onsubmit="salvarNovaRacao(event)">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Nome / Marca da Ração</label>
+                                    <input type="text" id="racaoNome" class="form-control" placeholder="Ex: Golden Adultos" required>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold text-secondary small text-uppercase">Calorias (kcal/100g)</label>
+                                        <input type="number" id="racaoKcal" class="form-control" value="350" onfocus="this.select()" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold text-secondary small text-uppercase">Cálcio (Ca %)</label>
+                                        <input type="number" id="racaoCa" class="form-control" step="0.01" value="1.0" onfocus="this.select()" required>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mb-4">
+                                    <div class="col-6">
+                                        <label class="form-label fw-semibold text-secondary small text-uppercase">Fósforo (P %)</label>
+                                        <input type="number" id="racaoP" class="form-control" step="0.01" value="0.8" onfocus="this.select()" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+                                    <i class="bi bi-disk me-1"></i> Salvar Ração no Banco
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registrar Alimento -->
+            <div class="card shadow-sm mb-4 border-0" style="border-radius: 16px;">
+                <div class="card-header bg-white py-3 border-bottom-0" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                    <h6 class="fw-bold text-dark mb-0 d-flex align-items-center">
+                        <i class="bi bi-plus-circle-fill text-success me-2 fs-5"></i> Registrar Alimento / Petisco
+                    </h6>
+                </div>
+                <div class="card-body pt-0">
+                    <form id="formAlimento" onsubmit="adicionarAlimento(event)">
+
+                        <div class="mb-3">
+                            <label for="selectAlimento" class="form-label fw-semibold text-secondary small text-uppercase">Selecione o Item</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0" style="border-radius: 10px 0 0 10px;"><i class="bi bi-search"></i></span>
+                                <select id="selectAlimento" class="form-select border-start-0 bg-light-subtle fw-semibold text-dark" style="border-radius: 0 10px 10px 0; cursor: pointer; height: 48px;" onchange="atualizarInterfaceMedida()" required>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase mb-2">Modo de Lançamento</label>
+                            <div class="btn-group w-100" role="group" aria-label="Tipo de Medida">
+                                <input type="radio" class="btn-check" name="tipoMedida" id="medidaUnidade" value="unidade" checked onchange="atualizarInterfaceMedida()">
+                                <label class="btn btn-outline-secondary py-2 fw-semibold d-flex align-items-center justify-content-center gap-2" for="medidaUnidade" style="border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
+                                    <i class="bi bi-pie-chart"></i> Por Porção / Unidade
+                                </label>
+
+                                <input type="radio" class="btn-check" name="tipoMedida" id="medidaGrama" value="grama" onchange="atualizarInterfaceMedida()">
+                                <label class="btn btn-outline-secondary py-2 fw-semibold d-flex align-items-center justify-content-center gap-2" for="medidaGrama" style="border-top-right-radius: 10px; border-bottom-right-radius: 10px;">
+                                    <i class="bi bi-speedometer2"></i> Por Peso (Gramas)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label id="labelTituloQtd" for="qtdAlimento" class="form-label fw-semibold text-secondary small text-uppercase">Quantidade</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0" style="border-radius: 10px 0 0 10px;"><i class="bi bi-calculator"></i></span>
+                                <input type="number" id="qtdAlimento" class="form-control border-start-0 border-end-0 bg-light-subtle fw-bold text-center fs-5" style="height: 48px;" min="0.1" step="0.1" value="1" onfocus="this.select()" required>
+                                <span class="input-group-text bg-light fw-bold text-dark border-start-0" id="labelUnidade" style="border-radius: 0 10px 10px 0; min-width: 100px; justify-content: center;">unidades</span>
+                            </div>
+                            <div class="form-text text-muted small mt-2 ps-1" id="ajudaPesoEstimado"></div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg py-3 fw-semibold shadow-sm" style="border-radius: 10px;">
+                                <i class="bi bi-check-lg me-1"></i> Adicionar ao Diário do Pet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUNA DA DIREITA -->
+        <div class="col-lg-7">
+            <div id="containerAlertas"></div>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body py-4">
+                    <h6 class="text-muted fw-bold mb-3 text-uppercase">Consumo Diário Consolidado</h6>
+                    <div class="progress mb-3">
+                        <div id="barraProgresso" class="progress-bar bg-success text-white" role="progressbar" style="width: 0%">0%</div>
+                    </div>
+                    <div class="d-flex justify-content-between fw-semibold text-secondary">
+                        <span id="txtConsumido">Consumido: 0 kcal</span>
+                        <span id="txtRestante" class="text-primary">Restante: 0 kcal</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-light p-0">
+                    <ul class="nav nav-tabs card-header-tabs ms-0" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active px-4 py-3" id="diario-tab" data-bs-toggle="tab" data-bs-target="#diario" type="button" role="tab">Diário de Consumo</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link px-4 py-3" id="nutri-tab" data-bs-toggle="tab" data-bs-target="#nutri" type="button" role="tab">Balanço Nutricional</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body tab-content p-4" id="myTabContent">
+                    <div class="tab-pane fade show active" id="diario" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table align-middle table-hover mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th class="text-center">Porção Ingerida</th>
+                                    <th class="text-center">Equivalente</th>
+                                    <th class="text-end">Calorias</th>
+                                    <th class="text-center">Ação</th>
+                                </tr>
+                                </thead>
+                                <tbody id="corpoTabelaDiario"></tbody>
+                            </table>
+                        </div>
+                        <div id="avisoVazio" class="text-center text-muted py-5">
+                            <i class="bi bi-basket3 text-secondary display-5 mb-2 d-block"></i>
+                            <p class="mb-0">Nenhum petisco adicionado para este cão hoje.</p>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="nutri" role="tabpanel">
+                        <h6 class="fw-semibold mb-3">Nutrientes Acumulados (Apenas dos Extras)</h6>
+                        <div class="row g-3 text-center mb-4">
+                            <div class="col-4"><div class="nutri-box"><small class="text-muted d-block fw-semibold">Prot (g)</small><span class="fs-4 fw-bold text-dark" id="resProt">0.0</span></div></div>
+                            <div class="col-4"><div class="nutri-box"><small class="text-muted d-block fw-semibold">Carb (g)</small><span class="fs-4 fw-bold text-dark" id="resCarb">0.0</span></div></div>
+                            <div class="col-4"><div class="nutri-box"><small class="text-muted d-block fw-semibold">Gord (g)</small><span class="fs-4 fw-bold text-dark" id="resFat">0.0</span></div></div>
+                        </div>
+                        <div class="p-3 bg-light rounded border border-warning-subtle">
+                            <h6 class="d-flex align-items-center fw-semibold text-warning-emphasis"><i class="bi bi-exclamation-triangle-fill me-2"></i> Equilíbrio Ca:P</h6>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2 fw-semibold text-dark">Proporção nos Extras:</span>
+                                <span id="txtProporcaoCaP" class="badge bg-secondary px-2 py-2 fs-6">Sem dados</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white p-4 border-top d-grid">
+                    <button class="btn btn-primary btn-lg py-3 shadow-sm fw-semibold" onclick="calcularOtimizacao()">
+                        <i class="bi bi-cpu-fill me-2"></i>Calcular Próxima Refeição de Ração
+                    </button>
+                </div>
+            </div>
+            <div id="carrosselMetricas" class="carousel slide mt-4" data-bs-ride="carousel">
+                <div class="carousel-inner">
+
+                    <div class="carousel-item active">
+                        <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px; min-height: 190px;">
+                            <div class="card-body p-4">
+                                <h6 class="text-muted fw-bold mb-3 text-uppercase small tracking-wider">
+                                    <i class="bi bi-clock-history text-primary me-2"></i>Última Recomendação do Solver
+                                </h6>
+                                <div id="historicoVazio" class="text-center text-muted py-3">
+                                    <small>Nenhum cálculo gerado para este pet hoje.</small>
+                                </div>
+                                <div id="historicoConteudo" class="d-none">
+                                    <p class="mb-2 small text-secondary">Prescrição calculada para a próxima refeição:</p>
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded border">
+                                        <div>
+                                            <span class="d-block small text-muted">Ração Recomendada</span>
+                                            <strong class="fs-5 text-dark" id="histRacao">0g</strong>
+                                        </div>
+                                        <div class="text-end" id="histAreaCalcio">
+                                            <span class="d-block small text-muted">Suplemento Ca</span>
+                                            <strong class="fs-5 text-warning" id="histCalcio">0g</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px; min-height: 190px;">
+                            <div class="card-body p-4">
+                                <h6 class="text-muted fw-bold mb-3 text-uppercase small tracking-wider">
+                                    <i class="bi bi-pie-chart-fill text-success me-2"></i>Cota Limite de Extras (Grams)
+                                </h6>
+                                <div class="row g-2 small">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between mb-1"><span>Proteínas</span><span id="txtMacroProt">0g</span></div>
+                                        <div class="progress" style="height: 8px;"><div id="barraMacroProt" class="progress-bar bg-info" style="width: 0%"></div></div>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <div class="d-flex justify-content-between mb-1"><span>Carboidratos</span><span id="txtMacroCarb">0g</span></div>
+                                        <div class="progress" style="height: 8px;"><div id="barraMacroCarb" class="progress-bar bg-warning" style="width: 0%"></div></div>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <div class="d-flex justify-content-between mb-1"><span>Gorduras</span><span id="txtMacroFat">0g</span></div>
+                                        <div class="progress" style="height: 8px;"><div id="barraMacroFat" class="progress-bar bg-danger" style="width: 0%"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px; min-height: 190px;">
+                            <div class="card-body p-4">
+                                <h6 class="text-muted fw-bold mb-3 text-uppercase small tracking-wider">
+                                    <i class="bi bi-currency-dollar text-finance me-2 text-success"></i>Análise Financeira do Prato
+                                </h6>
+                                <p class="small text-muted mb-3">Impacto financeiro estimado para cobrir o gasto calórico restante:</p>
+                                <div class="row text-center">
+                                    <div class="col-6 border-end">
+                                        <span class="small text-muted d-block">Custo da Refeição</span>
+                                        <strong class="fs-4 text-dark" id="custoRefeicao">R$ 0,00</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="small text-muted d-block">Preço Médio/kg</span>
+                                        <strong class="fs-5 text-secondary" id="custoPorKg">R$ --</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#carrosselMetricas" data-bs-slide="prev" style="width: 5%;">
+                    <span class="carousel-control-prev-icon bg-secondary rounded-circle" aria-hidden="true" style="width: 20px; height: 20px;"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carrosselMetricas" data-bs-slide="next" style="width: 5%;">
+                    <span class="carousel-control-next-icon bg-secondary rounded-circle" aria-hidden="true" style="width: 20px; height: 20px;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CADASTRAR CÃO (ATUALIZADO COM CHECKBOXES COMBINÁVEIS) -->
+<div class="modal fade" id="modalNovoCao" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-dark text-white py-3" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <h5 class="modal-title fw-bold d-flex align-items-center">
+                    <i class="bi bi-plus-circle-fill text-success me-2"></i> Cadastrar Novo Cão
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formNovoPet" onsubmit="salvarNovoPet(event)">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small text-uppercase">Nome do Cão</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-tag"></i></span>
+                            <input type="text" id="novoNome" class="form-control border-start-0 ps-0" placeholder="Ex: Kira" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small text-uppercase">Foto do Pet (Opcional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-camera"></i></span>
+                            <input type="file" id="novoFoto" class="form-control border-start-0 ps-2 py-2" accept="image/*">
+                        </div>
+                        <div class="form-text small text-muted">A foto será convertida e salva direto no banco de dados.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-secondary small text-uppercase">Peso Corporal</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-balance"></i></span>
+                            <input type="number" id="novoPeso" class="form-control border-start-0 ps-0" min="0.5" step="0.1" value="10" onfocus="this.select()" required>
+                            <span class="input-group-text bg-light text-muted fw-semibold">kg</span>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 bg-light p-3 mb-4">
+                        <label class="form-label fw-bold text-dark mb-3 d-flex align-items-center">
+                            <i class="bi bi-heart-pulse text-danger me-2"></i> Condição Física e Metabolismo
+                        </label>
+
+                        <div class="form-check form-switch p-0 d-flex align-items-center justify-content-between mb-3">
+                            <div class="pe-3">
+                                <label class="form-check-label fw-semibold text-dark d-block" for="checkCastrado">O animal é Castrado?</label>
+                                <small class="text-muted d-block" style="font-size: 0.82rem;">Ajusta o metabolismo base para cães castrados ou sedentários.</small>
+                            </div>
+                            <input class="form-check-input ms-0" type="checkbox" role="switch" id="checkCastrado" style="width: 2.8em; height: 1.5em; cursor: pointer;" checked>
+                        </div>
+
+                        <div class="border-top my-2 opacity-50"></div>
+
+                        <div class="form-check form-switch p-0 d-flex align-items-center justify-content-between mt-2">
+                            <div class="pe-3">
+                                <label class="form-check-label fw-semibold text-dark d-block" for="checkMuitoAtivo">O animal é Muito Ativo?</label>
+                                <small class="text-muted d-block" style="font-size: 0.82rem;">Aumenta a cota energética para pets que correm ou gastam muita energia.</small>
+                            </div>
+                            <input class="form-check-input ms-0" type="checkbox" role="switch" id="checkMuitoAtivo" style="width: 2.8em; height: 1.5em; cursor: pointer;">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg py-2 fw-semibold shadow-sm">
+                            <i class="bi bi-check-lg me-1"></i> Salvar e Ativar Pet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+cls
+
+<!-- MODAL RESULTADO -->
+<div class="modal fade" id="modalResultado" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header bg-dark text-white py-3" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <h5 class="modal-title fw-bold d-flex align-items-center">
+                    <i class="bi bi-patch-check-fill text-success me-2"></i> Próxima Refeição Calculada
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p id="modalTextoIntro" class="text-secondary small mb-3"></p>
+
+                <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded border mb-2">
+                    <div class="d-flex align-items-center">
+                        <span class="fs-3 me-3">🥣</span>
+                        <div>
+                            <strong class="d-block text-dark" id="modalNomeRacaoAtiva">Ração Comercial</strong>
+                            <small class="text-muted">Quantidade para atingir a meta diária</small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="fs-4 fw-bold text-primary" id="modalResultadoRacao">0</span> <span class="fw-semibold text-muted">g</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between p-3 rounded border border-warning-subtle mb-3" id="areaAlertaSuplemento" style="background-color: #fffdf5;">
+                    <div class="d-flex align-items-center">
+                        <span class="fs-3 me-3">🦴</span>
+                        <div>
+                            <strong class="d-block text-warning-emphasis">Suplemento de Cálcio</strong>
+                            <small class="text-muted">Necessário para balancear os petiscos</small>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="fs-4 fw-bold text-warning" id="modalResultadoCalcio">0.0</span> <span class="fw-semibold text-muted">g</span>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm" data-bs-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAlimentosProibidos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;" onclick="fecharBannerProibidos()">
+            <div class="modal-header bg-danger text-white py-3 text-center d-block" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <h4 class="modal-title fw-bold mb-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2 animate-pulse"></i> ATENÇÃO: Alimentos Proibidos!
+                </h4>
+                <small class="opacity-75">Clique em qualquer lugar desta tela para fechar e ir para o app</small>
+            </div>
+            <div class="modal-body p-4 bg-light-subtle">
+                <p class="text-secondary text-center mb-4 fw-semibold">
+                    Nunca ofereça os itens abaixo ao seu cão. Eles contêm toxinas severas que causam de falência renal a intoxicações graves.
+                </p>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm p-3">
+                            <h6 class="fw-bold text-danger mb-3"><i class="bi bi-x-circle-fill me-2"></i>Frutas e Vegetais Proibidos</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><strong>⭐ Carambola:</strong> Altamente tóxica para os rins dos cães.</li>
+                                <li class="mb-2"><strong>🥑 Abacate:</strong> Contém persina, que causa vômito e diarreia.</li>
+                                <li class="mb-2"><strong>🍒 Cereja e Ameixa:</strong> O caroço/semente possui cianeto.</li>
+                                <li class="mb-2"><strong>🍇 Uva e Uva-passa:</strong> Causa falência renal aguda fulminante.</li>
+                                <li class="mb-2"><strong>🧅 Cebola, Alho e Alho-poró:</strong> Destroem os glóbulos vermelhos (anemia).</li>
+                                <li class="mb-0"><strong>🥔 Batata Crua:</strong> Contém solanina (tóxica). Só ofereça cozida!</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm p-3">
+                            <h6 class="fw-bold text-danger mb-3"><i class="bi bi-shield-slash-fill me-2"></i>Outros Perigos Comuns</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><strong>🍫 Chocolate:</strong> Contém teobromina, o bicho não metaboliza (fatal).</li>
+                                <li class="mb-2"><strong>☕ Café / Cafeína:</strong> Causa hiperatividade e parada cardíaca.</li>
+                                <li class="mb-2"><strong>🌰 Macadâmia e Nozes:</strong> Afetam o sistema nervoso e muscular.</li>
+                                <li class="mb-2"><strong>🍬 Xilitol (Adoçante):</strong> Presente em doces sem açúcar, causa hipoglicemia severa.</li>
+                                <li class="mb-2"><strong>🍞 Massa de Pão Crua:</strong> O fermento expande e produz álcool no estômago.</li>
+                                <li class="mb-0"><strong>🥛 Leite de Vaca:</strong> Cães são intolerantes à lactose (causa disfunção GI).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <span class="badge bg-secondary-subtle text-secondary px-3 py-2 border">
+                        <i class="bi bi-hand-index-thumb me-1"></i> Toque ou clique em qualquer lugar para fechar
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5.3 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Script Modular da Lógica Separada -->
+<script type="module" src="app.js"></script>
+</body>
+</html>
